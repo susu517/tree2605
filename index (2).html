@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>心灵树洞 - 2605班</title>
+    <style>
+        /* 用 CSS 强行屏蔽 */
+        iframe[src*="netlify"], #netlify-badge, iframe[id^="netlify"], div[class*="netlify"] { 
+            display: none !important; opacity: 0 !important; pointer-events: none !important; z-index: -9999 !important;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+        body { background-color: #f7f5f2; color: #3d3a36; padding-bottom: 80px; }
+        .header { text-align: center; padding: 20px 0 10px 0; }
+        .icon { width: 60px; height: 60px; margin: 0 auto 10px auto; background: linear-gradient(135deg, #e0ecd8, #b6d0b8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 4px 10px rgba(143,180,150,0.3); }
+        h1 { font-size: 20px; color: #3d3a36; }
+        .subtitle { color: #9a948d; font-size: 12px; margin-top: 5px; }
+        .tabs { display: flex; background: #fff; margin: 15px; border-radius: 99px; padding: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .tab { flex: 1; text-align: center; padding: 10px 0; font-size: 14px; color: #6b6660; border-radius: 99px; cursor: pointer; transition: 0.2s; }
+        .tab.active { background: #6b8f71; color: #fff; font-weight: bold; }
+        .container { padding: 0 15px; max-width: 600px; margin: 0 auto; }
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+        .post-box { background: #fff; padding: 15px; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        textarea { width: 100%; height: 80px; background: #f4f2ef; border: none; border-radius: 12px; padding: 12px; font-size: 14px; resize: none; outline: none; margin-bottom: 10px; }
+        button { width: 100%; background: #6b8f71; color: #fff; border: none; padding: 12px; border-radius: 99px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        button:active { opacity: 0.8; }
+        .list-title { font-size: 14px; font-weight: 600; color: #6b6660; margin: 15px 5px; }
+        .item { background: #fff; padding: 15px; border-radius: 16px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); cursor: pointer; position: relative; }
+        .item-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px; }
+        .name { color: #6b8f71; font-weight: 600; }
+        .count { color: #b5afa8; }
+        .content { font-size: 15px; line-height: 1.5; word-break: break-all; }
+        .del-btn { position: absolute; bottom: 15px; right: 15px; background: none; color: #d9534f; font-size: 12px; width: auto; padding: 5px; border: none; }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: flex-end; justify-content: center; }
+        .modal-content { background: #fff; width: 100%; max-width: 600px; height: 80vh; border-radius: 20px 20px 0 0; padding: 20px; overflow-y: auto; position: relative; }
+        .close { position: absolute; top: 15px; right: 20px; font-size: 28px; color: #ccc; cursor: pointer; background: none; border: none; width: auto; padding: 0; }
+        .reply-list { margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+        .reply-item { background: #f7f5f2; padding: 10px; border-radius: 10px; margin-bottom: 10px; position: relative; }
+        .reply-name { font-size: 12px; color: #9a948d; margin-bottom: 4px; }
+        .reply-text { font-size: 14px; }
+        .reply-del { position: absolute; right: 10px; top: 10px; font-size: 12px; color: #d9534f; cursor: pointer; }
+        .reply-input-box { margin-top: 20px; display: flex; gap: 10px; }
+        .reply-input { flex: 1; background: #f4f2ef; border: none; border-radius: 99px; padding: 0 15px; font-size: 14px; outline: none; height: 44px; }
+        .reply-btn { width: 70px; height: 44px; border-radius: 99px; background: #6b8f71; color: white; border: none; font-size: 14px; font-weight: 600; }
+        
+        /* 强行把我们的导航栏层级拉到最大，踩在黑块头上 */
+        .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; display: flex; height: 60px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 9999999 !important; }
+        .tabbar-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; color: #9a948d; cursor: pointer; }
+        .tabbar-item.active { color: #6b8f71; font-weight: bold; }
+        .profile-card { background: #fff; padding: 30px; border-radius: 16px; text-align: center; margin-top: 20px; }
+        .role-name { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
+        .device-id { font-size: 12px; color: #b5afa8; word-break: break-all; margin-bottom: 20px; }
+        .logout-btn { background: #f0eeeb; color: #d9534f; margin-top: 20px; }
+        .auth-input { width:100%; background:#f4f2ef; border:none; border-radius:12px; padding:12px; font-size:14px; text-align:center; outline:none; margin-bottom:10px; }
+    </style>
+</head><body>
+    <div class="header">
+        <div class="icon">🌱</div>
+        <h1>心灵树洞</h1>
+        <p class="subtitle">食品2605班专属 · 把心里的事说给树洞听</p >
+    </div>
+    <div id="view-home" class="view-section active">
+        <div class="tabs">
+            <div class="tab active" onclick="switchBoard('questions', this)">问题答疑</div>
+            <div class="tab" onclick="switchBoard('secret_talks', this)">专属倾诉</div>
+            <div class="tab" onclick="switchBoard('chats', this)">无聊倾诉</div>
+        </div>
+        <div class="container">
+            <div class="post-box">
+                <textarea id="postContent" placeholder="今天有什么想倾诉的吗？(匿名发布)"></textarea>
+                <button onclick="submitPost()">发布</button>
+            </div>
+            <div class="list-title" id="boardTitle">最新问题</div>
+            <div id="postList"></div>
+        </div>
+    </div>
+    
+    <div id="view-diary" class="view-section">
+        <div class="container" style="margin-top: 20px;">
+            <div class="post-box">
+                <input id="diaryTitle" type="text" placeholder="日记标题(可不填)" class="auth-input">
+                <textarea id="diaryContent" placeholder="今天发生了什么..."></textarea>
+                <button onclick="submitDiary()">保存日记 (仅自己可见)</button>
+            </div>
+            <div class="list-title">我的日记本</div>
+            <div id="diaryList"></div>
+        </div>
+    </div>
+
+    <div id="view-mine" class="view-section">
+        <div class="container">
+            <div class="profile-card">
+                <div id="authSection">
+                    <div class="role-name">请登录以保存日记</div>
+                    <p style="font-size:12px; color:#9a948d; margin-bottom:15px;">(清理缓存也不怕，输入账号密码就能找回)</p >
+                    <input id="loginName" type="text" placeholder="输入你的专属昵称（如：小明）" class="auth-input">
+                    <input id="loginPass" type="password" placeholder="输入密码" class="auth-input">
+                    <button onclick="doLogin()">登录 / 注册</button>
+                </div>
+
+                <div id="userSection" style="display:none;">
+                    <div class="role-name" id="mineRole">同学</div>
+                    <div class="device-id" id="mineName"></div>
+                    <div style="margin-top: 10px;">
+                        <input id="adminCode" type="text" placeholder="输入邀请码升级管理员" class="auth-input">
+                        <button onclick="upgradeAdmin()">验证管理员</button>
+                        <button class="logout-btn" onclick="logout()">切换账号</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabbar">
+        <div class="tabbar-item active" onclick="switchView('home', this)">🌳<br>树洞</div>
+        <div class="tabbar-item" onclick="switchView('diary', this)">📖<br>日志</div>
+        <div class="tabbar-item" onclick="switchView('mine', this)">👤<br>我的</div>
+    </div>
+
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <button class="close" onclick="closeModal()">&times;</button>
+            <div id="detailContent"></div>
+            <div class="reply-input-box">
+                <input id="replyInput" type="text" class="reply-input" placeholder="匿名回应...">
+                <button class="reply-btn" onclick="submitReply()">发送</button>
+            </div>
+        </div>
+    </div>    <script>
+        // === 暴力删除 Netlify 黑块的神仙代码 ===
+        setInterval(() => {
+            const allElements = document.querySelectorAll('*');
+            allElements.forEach(el => {
+                if (el.tagName.toLowerCase() === 'iframe' && (el.src.includes('netlify') || el.id.includes('netlify'))) {
+                    el.style.display = 'none';
+                    el.style.pointerEvents = 'none';
+                    el.remove();
+                }
+                if (el.id && el.id.includes('netlify')) {
+                    el.style.display = 'none';
+                    el.remove();
+                }
+            });
+        }, 500);
+        // ======================================
+
+        const SUPABASE_URL = 'https://dahjqedaxctiaytytdio.supabase.co'
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRhaGpxZWRheGN0aWF5dHl0ZGlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyNzE1OTQsImV4cCI6MjEwODg0NzU5NH0.K3eoTV18mMnXIGhqFMCpcua8nHECK-55rRQ3jYR_kIw'
+        
+        let userId = localStorage.getItem('tree_user_id') || null;
+        let userName = localStorage.getItem('tree_user_name') || null;
+        let role = localStorage.getItem('tree_role') || 'student';
+        
+        let currentBoard = 'questions';
+        let currentPostId = null;
+        let currentReplies = [];
+        let currentPostCreator = '';
+
+        async function dbRequest(table, method = 'GET', body = null, query = '') {
+            const options = {
+                method: method,
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': 'Bearer ' + SUPABASE_KEY,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                }
+            };
+            if (body) options.body = JSON.stringify(body);
+            const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`, options);
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.message || '网络请求失败');
+            }
+            const text = await res.text();
+            return text ? JSON.parse(text) : [];
+        }
+
+        window.onload = () => {
+            checkLoginStatus();
+            loadPosts();
+        };
+
+        function checkLoginStatus() {
+            if (userId && userName) {
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('userSection').style.display = 'block';
+                document.getElementById('mineRole').innerText = role === 'admin' ? '管理员' : '同学';
+                document.getElementById('mineName').innerText = '当前账号: ' + userName;
+            } else {
+                document.getElementById('authSection').style.display = 'block';
+                document.getElementById('userSection').style.display = 'none';
+            }
+        }
+
+        async function doLogin() {
+            const name = document.getElementById('loginName').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+            if (!name || !pass) return alert('请输入昵称和密码');
+
+            const fakeId = 'web_' + name + '_' + pass;
+
+            try {
+                const check = await dbRequest('tree_users', 'GET', null, `?device_id=eq.${fakeId}`);
+                if (check.length === 0) {
+                    await dbRequest('tree_users', 'POST', { device_id: fakeId, role: 'student' });
+                    alert('注册成功，已自动登录！');
+                }
+                userId = fakeId;
+                userName = name;
+                localStorage.setItem('tree_user_id', userId);
+                localStorage.setItem('tree_user_name', userName);
+                localStorage.setItem('tree_role', 'student');
+                role = 'student';
+                checkLoginStatus();
+                loadPosts(); 
+                if(document.getElementById('view-diary').classList.contains('active')) loadDiaries();
+            } catch (err) {
+                alert('登录失败: ' + err.message);
+            }
+        }
+
+        function logout() {
+            if(!confirm('退出当前账号吗？')) return;
+            localStorage.removeItem('tree_user_id');
+            localStorage.removeItem('tree_user_name');
+            localStorage.removeItem('tree_role');
+            userId = null;
+            userName = null;
+            role = 'student';
+            checkLoginStatus();
+            document.getElementById('loginName').value = '';
+            document.getElementById('loginPass').value = '';
+        }
+
+        function switchView(viewId, el) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
+            document.querySelectorAll('.tabbar-item').forEach(el => el.classList.remove('active'));
+            el.classList.add('active');
+            if(viewId === 'diary') {
+                if(!userId) alert('请先在“我的”页面登录账号，才能写日记哦！');
+                loadDiaries();
+            }
+            if(viewId === 'home') loadPosts();
+        }
+
+        function switchBoard(board, el) {
+            currentBoard = board;
+            document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            const titles = { 'questions': '最新问题', 'secret_talks': '情绪倾诉(仅管理员可见)', 'chats': '无聊碎碎念' };
+            document.getElementById('boardTitle').innerText = titles[board];
+            loadPosts();
+        }
+
+        async function loadPosts() {
+            const listDom = document.getElementById('postList');
+            listDom.innerHTML = '<p style="text-align:center; color:#b5afa8; font-size:12px; padding:20px;">加载中...</p >';
+            try {
+                let query = '?select=*&order=created_at.desc';
+                if (currentBoard === 'secret_talks' && role !== 'admin') {
+                    if(!userId) {
+                        listDom.innerHTML = '<p style="text-align:center; color:#b5afa8; font-size:12px; padding:20px;">请先登录查看自己的倾诉</p >';
+                        return;
+                    }
+                    query += `&creator_device_id=eq.${userId}`;
+                }
+                const data = await dbRequest(currentBoard, 'GET', null, query);
+                if (data.length === 0) {
+                    listDom.innerHTML = '<p style="text-align:center; color:#b5afa8; font-size:12px; padding:20px;">暂无内容，来发第一条吧</p >';
+                    return;
+                }
+                listDom.innerHTML = data.map(post => {
+                    const canDelete = post.creator_device_id === userId || role === 'admin';
+                    return `
+                    <div class="item" onclick="openDetail(${post.id}, '${post.creator_device_id}')">
+                        <div class="item-header">
+                            <span class="name">匿名同学</span>
+                            <span class="count">${Array.isArray(post.reply) ? post.reply.length : 0} 条回应</span>
+                        </div>
+                        <p class="content">${post.content}</p >
+                        ${canDelete ? `<button class="del-btn" onclick="deletePost(event, ${post.id})">删除</button>` : ''}
+                    </div>`
+                }).join('');
+            } catch (err) {
+                listDom.innerHTML = `<p style="text-align:center; color:#d9534f; font-size:12px;">加载失败: ${err.message}</p >`;
+            }
+        }
+
+        async function submitPost() {
+            const content = document.getElementById('postContent').value;
+            if (!content.trim()) return alert('写点什么再发布吧');
+            
+            let postCreatorId = userId || 'guest_' + Math.random().toString(36).substr(2, 5);
+            let postData = {
+                content: content.trim(),
+                creator_device_id: postCreatorId
+            };
+            if (currentBoard !== 'secret_talks') {
+                postData.is_anonymous = true;
+            }
+
+            try {
+                await dbRequest(currentBoard, 'POST', postData);
+                document.getElementById('postContent').value = '';
+                loadPosts();
+            } catch (err) { 
+                alert('发布失败原因: ' + err.message); 
+            }
+        }
+
+        async function deletePost(e, id) {
+            e.stopPropagation();
+            if (!confirm('确定要删除这条内容吗？')) return;
+            try {
+                await dbRequest(currentBoard, 'DELETE', null, `?id=eq.${id}`);
+                loadPosts();
+            } catch (err) { alert('删除失败'); }
+        }
+
+        async function openDetail(id, creator) {
+            currentPostId = id;
+            currentPostCreator = creator;
+            try {
+                const data = await dbRequest(currentBoard, 'GET', null, `?id=eq.${id}`);
+                if (data.length === 0) return;
+                const post = data[0];
+                currentReplies = Array.isArray(post.reply) ? post.reply : [];
+                const isAdmin = role === 'admin';
+                const canReply = currentBoard === 'secret_talks' ? isAdmin : true;
+                let replyHtml = currentReplies.length ? currentReplies.map((r, idx) => {
+                    const canDelReply = r.creator_device_id === userId || isAdmin;
+                    return `
+                    <div class="reply-item">
+                        <div class="reply-name">${r.displayName || '匿名同学'}</div>
+                        <div class="reply-text">${r.content}</div>
+                        ${canDelReply ? `<span class="reply-del" onclick="deleteReply(${idx})">删除</span>` : ''}
+                    </div>`
+                }).join('') : '<p style="text-align:center; color:#b5afa8; font-size:12px;">还没有人回应</p >';
+                document.getElementById('detailContent').innerHTML = `
+                    <span class="name" style="font-size:14px;">匿名同学</span>
+                    <p class="content" style="font-size:16px; margin:12px 0 24px 0;">${post.content}</p >
+                    <div class="reply-list">
+                        <div class="list-title">回应 (${currentReplies.length})</div>
+                        ${replyHtml}
+                    </div>`;
+                document.querySelector('.reply-input-box').style.display = canReply ? 'flex' : 'none';
+                document.getElementById('detailModal').style.display = 'flex';
+            } catch (err) { alert('获取详情失败'); }
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+            loadPosts(); 
+        }
+
+        async function submitReply() {
+            const replyText = document.getElementById('replyInput').value;
+            if (!replyText.trim()) return;
+            
+            let replyCreatorId = userId || 'guest_' + Math.random().toString(36).substr(2, 5);
+            
+            const newReplies = [...currentReplies, { 
+                content: replyText.trim(), 
+                displayName: role === 'admin' ? '管理员' : '匿名同学', 
+                creator_device_id: replyCreatorId 
+            }];
+            try {
+                await dbRequest(currentBoard, 'PATCH', { reply: newReplies }, `?id=eq.${currentPostId}`);
+                document.getElementById('replyInput').value = '';
+                openDetail(currentPostId, currentPostCreator);
+            } catch (err) { alert('回复失败'); }
+        }
+
+        async function deleteReply(index) {
+            if (!confirm('确定删除这条回复吗？')) return;
+            const newReplies = [...currentReplies];
+            newReplies.splice(index, 1);
+            try {
+                await dbRequest(currentBoard, 'PATCH', { reply: newReplies }, `?id=eq.${currentPostId}`);
+                openDetail(currentPostId, currentPostCreator);
+            } catch (err) { alert('删除失败'); }
+        }
+
+        async function loadDiaries() {
+            const listDom = document.getElementById('diaryList');
+            if (!userId) {
+                listDom.innerHTML = '<p style="text-align:center; color:#b5afa8; font-size:12px; padding:20px;">请先登录账号</p >';
+                return;
+            }
+            try {
+                const data = await dbRequest('diaries', 'GET', null, `?creator_device_id=eq.${userId}&order=created_at.desc`);
+                if (data.length === 0) {
+                    listDom.innerHTML = '<p style="text-align:center; color:#b5afa8; font-size:12px; padding:20px;">还没写过日记</p >';
+                    return;
+                }
+                listDom.innerHTML = data.map(d => `
+                    <div class="item">
+                        <div class="item-header"><span class="name">${d.title || '无标题'}</span></div>
+                        <p class="content">${d.content}</p >
+                        <button class="del-btn" onclick="deleteDiary(${d.id})">删除</button>
+                    </div>`).join('');
+            } catch (err) {}
+        }
+
+        async function submitDiary() {
+            if (!userId) return alert('请先在“我的”页面登录账号！');
+            const title = document.getElementById('diaryTitle').value;
+            const content = document.getElementById('diaryContent').value;
+            if (!content.trim()) return alert('写点什么再保存吧');
+            try {
+                await dbRequest('diaries', 'POST', { title: title.trim(), content: content.trim(), creator_device_id: userId });
+                document.getElementById('diaryTitle').value = '';
+                document.getElementById('diaryContent').value = '';
+                loadDiaries();
+                alert('日记已保存，仅你可见');
+            } catch (err) { alert('保存失败'); }
+        }
+
+        async function deleteDiary(id) {
+            if (!confirm('删除这篇日记吗？')) return;
+            try {
+                await dbRequest('diaries', 'DELETE', null, `?id=eq.${id}`);
+                loadDiaries();
+            } catch (err) { alert('删除失败'); }
+        }
+
+        function upgradeAdmin() {
+            if (!userId) return alert('请先登录');
+            const code = document.getElementById('adminCode').value;
+            if (code === '2605') {
+                role = 'admin';
+                localStorage.setItem('tree_role', role);
+                document.getElementById('mineRole').innerText = '管理员';
+                alert('身份验证成功，已升级为管理员！');
+                document.getElementById('adminCode').value = '';
+            } else {
+                alert('邀请码错误');
+            }
+        }
+    </script>
+</body>
+</html>
